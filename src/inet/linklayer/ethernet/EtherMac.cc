@@ -493,7 +493,8 @@ void EtherMac::startFrameTransmission()
     signal->addByteLength(extensionLength.get());
     curTxSignal = signal->dup();
     curTxSignal->setOrigPacketId(signal->getId());
-    send(signal, physOutGate);
+    simtime_t duration = signal->getBitLength() / curEtherDescr->txrate;
+    send(signal, SendOptions().duration(duration), physOutGate);
     scheduleEndTxPeriod(sentFrameByteLength);
     // only count transmissions in totalSuccessfulRxTxTime if channel is half-duplex
     if (!duplexMode)
@@ -533,7 +534,8 @@ void EtherMac::abortTransmissionAndAppendJam()
     curTxSignal->setBitLength(newBitLength);
     curTxSignal->addByteLength(JAM_SIGNAL_BYTES.get()); // append JAM
     curTxSignal->setBitError(true);
-    send(curTxSignal->dup(), SendOptions().updateTx(curTxSignal->getOrigPacketId()), physOutGate);
+    simtime_t duration = curTxSignal->getBitLength() / curEtherDescr->txrate;
+    send(curTxSignal->dup(), SendOptions().updateTx(curTxSignal->getOrigPacketId()).duration(duration), physOutGate);
     rescheduleAt(transmissionChannel->getTransmissionFinishTime(), txTimer);
     changeTransmissionState(JAMMING_STATE);
 }
@@ -862,7 +864,8 @@ void EtherMac::fillIFGIfInBurst()
         bytesSentInBurst += B(gap->getByteLength());
         curTxSignal = gap->dup();
         curTxSignal->setOrigPacketId(gap->getId());
-        send(gap, physOutGate);
+        simtime_t duration = gap->getBitLength() / curEtherDescr->txrate;
+        send(gap, SendOptions().duration(duration), physOutGate);
         changeTransmissionState(SEND_IFG_STATE);
         cancelEvent(endIfgTimer);
         rescheduleAt(transmissionChannel->getTransmissionFinishTime(), endTxTimer);
