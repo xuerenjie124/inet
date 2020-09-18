@@ -21,11 +21,11 @@
 package inet.examples.ethernet.lans;
 
 import inet.linklayer.ethernet.EtherHub;
-import inet.linklayer.ethernet.WireJunction;
 import inet.node.ethernet.Eth100M;
 import inet.node.ethernet.Eth10M;
 import inet.node.ethernet.EtherHost;
 import inet.node.ethernet.EtherSwitch;
+import inet.physicallayer.ethernet.WireJunction;
 import ned.DatarateChannel;
 
 
